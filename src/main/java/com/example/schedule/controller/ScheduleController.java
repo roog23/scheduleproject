@@ -24,8 +24,8 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public List<ResponseDto> findScheduleByReq(@RequestBody RequestDto request) {
-        return service.findScheduleByReq(request);
+    public List<ResponseDto> findScheduleByUserId(@RequestBody RequestDto request) {
+        return service.findScheduleByUserId(request);
     }
 
     @GetMapping("/{id}")

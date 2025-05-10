@@ -10,7 +10,7 @@ public interface Service {
 
     ResponseDto findScheduleById(Long id);
 
-    List<ResponseDto> findScheduleByReq(RequestDto request);
+    List<ResponseDto> findScheduleByUserId(RequestDto request);
 
     ResponseDto updateSchedule(RequestDto request);
 

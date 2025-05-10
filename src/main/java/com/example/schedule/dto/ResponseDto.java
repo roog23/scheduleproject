@@ -8,7 +8,7 @@ import lombok.Getter;
 public class ResponseDto {
 
     private Long id;
-    private String user;
+    private Long userid;
     private String todo;
     private String createdate;
     private String updatedate;

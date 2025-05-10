@@ -3,9 +3,11 @@ package com.example.schedule.service;
 import com.example.schedule.dto.PasswordDto;
 import com.example.schedule.dto.RequestDto;
 import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.dto.UseridDto;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.repository.Repository;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -19,9 +21,18 @@ public class ScheduleServiceImpl implements Service{
         this.repository = repository;
     }
 
+    @Transactional
     @Override
     public ResponseDto saveSchedule(RequestDto request) {
-        Schedule schedule = new Schedule(request.getUser(), request.getPassword(), request.getTodo());
+        Optional<UseridDto> result = repository.findUser(request.getUser());
+        if (result.isEmpty()) {
+            Long userId = repository.saveUser(request.getUser(), request.getMail());
+            request.setUserId(userId);
+        }
+        else {
+            request.setUserId(result.get().getUserid());
+        }
+        Schedule schedule = new Schedule(request.getUserid(), request.getUser(), request.getPassword(), request.getTodo());
         return repository.saveSchedule(schedule);
     }
 
@@ -35,10 +46,11 @@ public class ScheduleServiceImpl implements Service{
     }
 
     @Override
-    public List<ResponseDto> findScheduleByReq(RequestDto request) {
-        return repository.findScheduleByReq(request.getUser(),request.getUpdatedate());
+    public List<ResponseDto> findScheduleByUserId(RequestDto request) {
+        return repository.findScheduleByUserId(request.getUserid());
     }
 
+    @Transactional
     @Override
     public ResponseDto updateSchedule(RequestDto request) {
         passwordCheck(request);
@@ -65,5 +77,6 @@ public class ScheduleServiceImpl implements Service{
         if(!request.getPassword().equals(password.get().getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 틀렸습니다.");
         }
+        request.setUserId(password.get().getUserid());
     }
 }

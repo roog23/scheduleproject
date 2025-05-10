@@ -3,6 +3,7 @@ package com.example.schedule.repository;
 import com.example.schedule.dto.PasswordDto;
 import com.example.schedule.dto.RequestDto;
 import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.dto.UseridDto;
 import com.example.schedule.entity.Schedule;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -29,46 +30,78 @@ public class ScheduleRepositoryImpl implements Repository{
     @Override
     public ResponseDto saveSchedule(Schedule schedule) {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-        jdbcInsert.withTableName("schedule").usingGeneratedKeyColumns("id");
+        jdbcInsert.withTableName("todo").usingGeneratedKeyColumns("id");
         String now = LocalDate.now().toString();
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("user", schedule.getUser());
+        parameters.put("userid", schedule.getUserId());
         parameters.put("password", schedule.getPassword());
         parameters.put("todo", schedule.getTodo());
-        parameters.put("createdate", now);
-        parameters.put("updatedate", now);
+        parameters.put("todocreatedate", now);
+        parameters.put("todoupdatedate", now);
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
 
-        return new ResponseDto(key.longValue(), schedule.getUser(), schedule.getTodo(), now , now);
+        return new ResponseDto(key.longValue(), schedule.getUserId(), schedule.getTodo(), now , now);
     }
 
     @Override
     public Optional<ResponseDto> findScheduleById(Long id) {
-        List<ResponseDto> result = jdbcTemplate.query("select id, user, todo, createdate, updatedate from schedule where id = ?",scheduleMapper(), id);
+        List<ResponseDto> result = jdbcTemplate.query("select id, userid, todo, todocreatedate, todoupdatedate from todo where id = ?",scheduleMapper(), id);
         return result.stream().findAny();
     }
 
     @Override
-    public List<ResponseDto> findScheduleByReq(String user, String updatedate) {
-        List<ResponseDto> result = jdbcTemplate.query("SELECT id, user, todo, createdate, updatedate FROM schedule WHERE (? IS NULL OR user = ?) AND (? IS NULL OR updatedate = ?) ORDER BY updatedate DESC",scheduleMapper(), user, user, updatedate, updatedate);
+    public List<ResponseDto> findScheduleByUserId(Long userid) {
+        List<ResponseDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC",scheduleMapper(), userid);
         return result;
     }
 
     @Override
     public Optional<PasswordDto> passwordGet(Long id) {
-        List<PasswordDto> result = jdbcTemplate.query("SELECT password FROM schedule WHERE id = ?",passwordMapper(), id);
+        List<PasswordDto> result = jdbcTemplate.query("SELECT userid, password FROM todo WHERE id = ?",passwordMapper(), id);
         return result.stream().findAny();
     }
 
     @Override
     public void updateSchedule(RequestDto request) {
-        jdbcTemplate.update("update schedule set user = ?, todo = ?, updatedate = date_format(now(), '%Y-%m-%d') where id = ?", request.getUser(), request.getTodo(), request.getId());
+        jdbcTemplate.update("update todo t join user u on t.userid = u.userid set u.user = ?, t.todo = ?, t.todoupdatedate = date_format(now(), '%Y-%m-%d') where t.id = ?", request.getUser(), request.getTodo(), request.getId());
     }
 
     @Override
     public void deleteSchedule(RequestDto request) {
-        jdbcTemplate.update("delete from schedule where id = ?", request.getId());
+        jdbcTemplate.update("delete from todo where id = ?", request.getId());
+    }
+
+    @Override
+    public Optional<UseridDto> findUser(String user) {
+        List<UseridDto> result = jdbcTemplate.query("select userid from user where user = ?", userMapper(), user);
+        return result.stream().findAny();
+    }
+
+    @Override
+    public Long saveUser(String user, String mail) {
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+        jdbcInsert.withTableName("user").usingGeneratedKeyColumns("userid");
+        String now = LocalDate.now().toString();
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("user", user);
+        parameters.put("mail", mail);
+        parameters.put("usercreatedate", now);
+        parameters.put("userupdatedate", now);
+
+        Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
+        return key.longValue();
+    }
+
+    private RowMapper<UseridDto> userMapper() {
+        return new RowMapper<UseridDto>() {
+            @Override
+            public UseridDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new UseridDto(
+                        rs.getLong("userid")
+                );
+            }
+        };
     }
 
     private RowMapper<PasswordDto> passwordMapper() {
@@ -76,6 +109,7 @@ public class ScheduleRepositoryImpl implements Repository{
             @Override
             public PasswordDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new PasswordDto(
+                        rs.getLong("userid"),
                         rs.getString("password")
                 );
             }
@@ -88,10 +122,10 @@ public class ScheduleRepositoryImpl implements Repository{
             public ResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new ResponseDto(
                         rs.getLong("id"),
-                        rs.getString("user"),
+                        rs.getLong("userid"),
                         rs.getString("todo"),
-                        rs.getString("createdate"),
-                        rs.getString("updatedate")
+                        rs.getString("todocreatedate"),
+                        rs.getString("todoupdatedate")
                 );
                 }
         };
