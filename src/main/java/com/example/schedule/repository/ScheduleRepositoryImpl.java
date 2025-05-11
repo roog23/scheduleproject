@@ -1,9 +1,6 @@
 package com.example.schedule.repository;
 
-import com.example.schedule.dto.PasswordDto;
-import com.example.schedule.dto.RequestDto;
-import com.example.schedule.dto.ResponseDto;
-import com.example.schedule.dto.UseridDto;
+import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -55,6 +52,13 @@ public class ScheduleRepositoryImpl implements Repository{
         List<ResponseDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC",scheduleMapper(), userid);
         return result;
     }
+
+    @Override
+    public List<ScheduleListDto> findSchedulePage(int pageNumber, int pageSize) {
+        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid limit ? offset ?",schedulePageMapper(), pageSize, pageNumber * pageSize  );
+        return result;
+    }
+
 
     @Override
     public Optional<PasswordDto> passwordGet(Long id) {
@@ -127,7 +131,23 @@ public class ScheduleRepositoryImpl implements Repository{
                         rs.getString("todocreatedate"),
                         rs.getString("todoupdatedate")
                 );
-                }
+            }
+        };
+    }
+
+    private RowMapper<ScheduleListDto> schedulePageMapper() {
+        return new RowMapper<ScheduleListDto>() {
+            @Override
+            public ScheduleListDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new ScheduleListDto(
+                        rs.getLong("id"),
+                        rs.getLong("userid"),
+                        rs.getString("user"),
+                        rs.getString("todo"),
+                        rs.getString("todocreatedate"),
+                        rs.getString("todoupdatedate")
+                );
+            }
         };
     }
 

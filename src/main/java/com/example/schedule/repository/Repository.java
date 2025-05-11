@@ -1,9 +1,6 @@
 package com.example.schedule.repository;
 
-import com.example.schedule.dto.PasswordDto;
-import com.example.schedule.dto.RequestDto;
-import com.example.schedule.dto.ResponseDto;
-import com.example.schedule.dto.UseridDto;
+import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
 
 import java.util.List;
@@ -25,4 +22,6 @@ public interface Repository {
     Optional<UseridDto> findUser(String user);
 
     Long saveUser(String user, String mail);
+
+    List<ScheduleListDto> findSchedulePage(int pageNumber, int pageSize);
 }

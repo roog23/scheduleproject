@@ -2,6 +2,7 @@ package com.example.schedule.controller;
 
 import com.example.schedule.dto.RequestDto;
 import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.dto.ScheduleListDto;
 import com.example.schedule.service.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,11 @@ public class ScheduleController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDto> findScheduleById(@PathVariable Long id) {
         return new ResponseEntity<>(service.findScheduleById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/page")
+    public List<ScheduleListDto> findSchedulePage(@RequestParam(defaultValue = "1") int pageNumber, @RequestParam(defaultValue = "10") int pageSize ) {
+        return service.findSchedulePage(pageNumber-1, pageSize);
     }
 
     @PutMapping

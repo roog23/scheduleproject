@@ -1,9 +1,6 @@
 package com.example.schedule.service;
 
-import com.example.schedule.dto.PasswordDto;
-import com.example.schedule.dto.RequestDto;
-import com.example.schedule.dto.ResponseDto;
-import com.example.schedule.dto.UseridDto;
+import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.repository.Repository;
 import org.springframework.http.HttpStatus;
@@ -48,6 +45,11 @@ public class ScheduleServiceImpl implements Service{
     @Override
     public List<ResponseDto> findScheduleByUserId(RequestDto request) {
         return repository.findScheduleByUserId(request.getUserid());
+    }
+
+    @Override
+    public List<ScheduleListDto> findSchedulePage(int pageNumber, int pageSize) {
+        return repository.findSchedulePage(pageNumber, pageSize);
     }
 
     @Transactional
