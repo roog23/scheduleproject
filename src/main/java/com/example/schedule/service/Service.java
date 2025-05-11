@@ -11,7 +11,7 @@ public interface Service {
 
     ResponseDto findScheduleById(Long id);
 
-    List<ScheduleListDto> findScheduleByUserId(RequestDto request);
+    List<ScheduleListDto> findScheduleByUserId(Long userId);
 
     ResponseDto updateSchedule(RequestDto request);
 

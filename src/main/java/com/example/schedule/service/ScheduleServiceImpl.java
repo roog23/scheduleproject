@@ -39,8 +39,8 @@ public class ScheduleServiceImpl implements Service{
     }
 
     @Override
-    public List<ScheduleListDto> findScheduleByUserId(RequestDto request) {
-        List<ScheduleListDto> userIdScheduleList = repository.findScheduleByUserId(request.getUserid());
+    public List<ScheduleListDto> findScheduleByUserId(Long userId) {
+        List<ScheduleListDto> userIdScheduleList = repository.findScheduleByUserId(userId);
         if(userIdScheduleList.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 유저의 일정을 찾을 수 없습니다.");
         }
