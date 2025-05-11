@@ -48,14 +48,14 @@ public class ScheduleRepositoryImpl implements Repository{
     }
 
     @Override
-    public List<ResponseDto> findScheduleByUserId(Long userid) {
-        List<ResponseDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC",scheduleMapper(), userid);
+    public List<ScheduleListDto> findScheduleByUserId(Long userid) {
+        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC",schedulefindMapper(), userid);
         return result;
     }
 
     @Override
     public List<ScheduleListDto> findSchedulePage(int pageNumber, int pageSize) {
-        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid limit ? offset ?",schedulePageMapper(), pageSize, pageNumber * pageSize  );
+        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid limit ? offset ?",schedulefindMapper(), pageSize, pageNumber * pageSize  );
         return result;
     }
 
@@ -135,7 +135,7 @@ public class ScheduleRepositoryImpl implements Repository{
         };
     }
 
-    private RowMapper<ScheduleListDto> schedulePageMapper() {
+    private RowMapper<ScheduleListDto> schedulefindMapper() {
         return new RowMapper<ScheduleListDto>() {
             @Override
             public ScheduleListDto mapRow(ResultSet rs, int rowNum) throws SQLException {

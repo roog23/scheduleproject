@@ -35,16 +35,16 @@ public class ScheduleServiceImpl implements Service{
 
     @Override
     public ResponseDto findScheduleById(Long id) {
-        Optional<ResponseDto> result = repository.findScheduleById(id);
-        if (result.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 id를 찾을 수 없습니다.");
-        }
-        return result.get();
+        return idCheck(id);
     }
 
     @Override
-    public List<ResponseDto> findScheduleByUserId(RequestDto request) {
-        return repository.findScheduleByUserId(request.getUserid());
+    public List<ScheduleListDto> findScheduleByUserId(RequestDto request) {
+        List<ScheduleListDto> userIdScheduleList = repository.findScheduleByUserId(request.getUserid());
+        if(userIdScheduleList.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 유저의 일정을 찾을 수 없습니다.");
+        }
+        return userIdScheduleList;
     }
 
     @Override
@@ -57,11 +57,7 @@ public class ScheduleServiceImpl implements Service{
     public ResponseDto updateSchedule(RequestDto request) {
         passwordCheck(request);
         repository.updateSchedule(request);
-        Optional<ResponseDto> result = repository.findScheduleById(request.getId());
-        if (result.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 id를 찾을 수 없습니다.");
-        }
-        return result.get();
+        return idCheck(request.getId());
     }
 
     @Override
@@ -70,10 +66,18 @@ public class ScheduleServiceImpl implements Service{
         repository.deleteSchedule(request);
     }
 
+    private ResponseDto idCheck(Long id) {
+        Optional<ResponseDto> result = repository.findScheduleById(id);
+        if (result.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 일정을 찾을 수 없습니다.");
+        }
+        return result.get();
+    }
+
     private void passwordCheck(RequestDto request) {
         Optional<PasswordDto> password = repository.passwordGet(request.getId());
         if (password.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 id를 찾을 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 일정을 찾을 수 없습니다.");
         }
 
         if(!request.getPassword().equals(password.get().getPassword())) {

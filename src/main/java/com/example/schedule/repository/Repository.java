@@ -11,7 +11,7 @@ public interface Repository {
 
     Optional<ResponseDto> findScheduleById(Long id);
 
-    List<ResponseDto> findScheduleByUserId(Long userid);
+    List<ScheduleListDto> findScheduleByUserId(Long userid);
 
     Optional<PasswordDto> passwordGet(Long id);
 
