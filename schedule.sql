@@ -48,7 +48,7 @@ select id, user, todo, createdate, updatedate from schedule where (? is null or 
 선택 일정 조회
 SELECT id, user, todo, createdate, updatedate FROM schedule WHERE id = ?
 테이블 분리 수정
-SELECT id, userid, todo, todocreatedate, todoupdatedate FROM todo WHERE id = ?
+SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid WHERE id = ?
 
 유저 ID 일정 조회
 SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC

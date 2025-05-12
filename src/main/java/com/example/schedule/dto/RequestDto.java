@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
+// 요청을 위한 DTO
 @Getter
 public class RequestDto {
     private Long id;

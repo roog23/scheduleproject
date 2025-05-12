@@ -3,6 +3,7 @@ package com.example.schedule.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+// 일정 정보를 담는 객체
 @Getter
 @AllArgsConstructor
 public class Schedule {

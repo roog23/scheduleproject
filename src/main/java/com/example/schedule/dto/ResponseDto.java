@@ -3,6 +3,7 @@ package com.example.schedule.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+// 기본 응답을 위한 DTO
 @Getter
 @AllArgsConstructor
 public class ResponseDto {
