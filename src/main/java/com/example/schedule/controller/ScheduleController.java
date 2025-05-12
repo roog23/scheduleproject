@@ -4,6 +4,7 @@ import com.example.schedule.dto.RequestDto;
 import com.example.schedule.dto.ResponseDto;
 import com.example.schedule.dto.ScheduleListDto;
 import com.example.schedule.service.Service;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/schedule")
+@RequiredArgsConstructor
 public class ScheduleController {
     private final Service service;
 
-    public ScheduleController(Service service) {
-        this.service = service;
-    }
     @PostMapping
     public ResponseEntity<ResponseDto> createSchedule(@RequestBody RequestDto request) {
         return new ResponseEntity<>(service.saveSchedule(request), HttpStatus.CREATED);

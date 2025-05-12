@@ -2,10 +2,11 @@ package com.example.schedule.service;
 
 import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
+import com.example.schedule.exception.ScheduleNotFoundException;
+import com.example.schedule.exception.UserScheduleNotFoundException;
+import com.example.schedule.exception.WrongPasswordException;
 import com.example.schedule.repository.Repository;
-import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,14 +36,14 @@ public class ScheduleServiceImpl implements Service{
 
     @Override
     public ResponseDto findScheduleById(Long id) {
-        return idCheck(id);
+        return ScheduleCheck(id);
     }
 
     @Override
     public List<ScheduleListDto> findScheduleByUserId(Long userId) {
         List<ScheduleListDto> userIdScheduleList = repository.findScheduleByUserId(userId);
         if(userIdScheduleList.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 유저의 일정을 찾을 수 없습니다.");
+            throw new UserScheduleNotFoundException();
         }
         return userIdScheduleList;
     }
@@ -57,7 +58,7 @@ public class ScheduleServiceImpl implements Service{
     public ResponseDto updateSchedule(RequestDto request) {
         passwordCheck(request);
         repository.updateSchedule(request);
-        return idCheck(request.getId());
+        return ScheduleCheck(request.getId());
     }
 
     @Override
@@ -66,10 +67,10 @@ public class ScheduleServiceImpl implements Service{
         repository.deleteSchedule(request);
     }
 
-    private ResponseDto idCheck(Long id) {
+    private ResponseDto ScheduleCheck(Long id) {
         Optional<ResponseDto> result = repository.findScheduleById(id);
         if (result.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 일정을 찾을 수 없습니다.");
+            throw new ScheduleNotFoundException();
         }
         return result.get();
     }
@@ -77,11 +78,11 @@ public class ScheduleServiceImpl implements Service{
     private void passwordCheck(RequestDto request) {
         Optional<PasswordDto> password = repository.passwordGet(request.getId());
         if (password.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 일정을 찾을 수 없습니다.");
+            throw new ScheduleNotFoundException();
         }
 
         if(!request.getPassword().equals(password.get().getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 틀렸습니다.");
+            throw new WrongPasswordException();
         }
         request.setUserId(password.get().getUserid());
     }

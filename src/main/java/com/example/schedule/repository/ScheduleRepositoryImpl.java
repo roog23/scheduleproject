@@ -43,19 +43,19 @@ public class ScheduleRepositoryImpl implements Repository{
 
     @Override
     public Optional<ResponseDto> findScheduleById(Long id) {
-        List<ResponseDto> result = jdbcTemplate.query("select id, userid, todo, todocreatedate, todoupdatedate from todo where id = ?",scheduleMapper(), id);
+        List<ResponseDto> result = jdbcTemplate.query("SELECT id, userid, todo, todocreatedate, todoupdatedate FROM todo WHERE id = ?",scheduleMapper(), id);
         return result.stream().findAny();
     }
 
     @Override
     public List<ScheduleListDto> findScheduleByUserId(Long userid) {
-        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC",schedulefindMapper(), userid);
+        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC",scheduleFindMapper(), userid);
         return result;
     }
 
     @Override
     public List<ScheduleListDto> findSchedulePage(int pageNumber, int pageSize) {
-        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u on t.userid = u.userid limit ? offset ?",schedulefindMapper(), pageSize, pageNumber * pageSize  );
+        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid LIMIT ? OFFSET ?",scheduleFindMapper(), pageSize, pageNumber * pageSize  );
         return result;
     }
 
@@ -68,17 +68,17 @@ public class ScheduleRepositoryImpl implements Repository{
 
     @Override
     public void updateSchedule(RequestDto request) {
-        jdbcTemplate.update("update todo t join user u on t.userid = u.userid set u.user = ?, t.todo = ?, t.todoupdatedate = date_format(now(), '%Y-%m-%d') where t.id = ?", request.getUser(), request.getTodo(), request.getId());
+        jdbcTemplate.update("UPDATE todo t JOIN user u ON t.userid = u.userid SET u.user = ?, t.todo = ?, t.todoupdatedate = date_format(now(), '%Y-%m-%d') WHERE t.id = ?", request.getUser(), request.getTodo(), request.getId());
     }
 
     @Override
     public void deleteSchedule(RequestDto request) {
-        jdbcTemplate.update("delete from todo where id = ?", request.getId());
+        jdbcTemplate.update("DELETE FROM todo WHERE id = ?", request.getId());
     }
 
     @Override
     public Optional<UseridDto> findUser(String user) {
-        List<UseridDto> result = jdbcTemplate.query("select userid from user where user = ?", userMapper(), user);
+        List<UseridDto> result = jdbcTemplate.query("SELECT userid FROM user WHERE user = ?", userMapper(), user);
         return result.stream().findAny();
     }
 
@@ -135,7 +135,7 @@ public class ScheduleRepositoryImpl implements Repository{
         };
     }
 
-    private RowMapper<ScheduleListDto> schedulefindMapper() {
+    private RowMapper<ScheduleListDto> scheduleFindMapper() {
         return new RowMapper<ScheduleListDto>() {
             @Override
             public ScheduleListDto mapRow(ResultSet rs, int rowNum) throws SQLException {
