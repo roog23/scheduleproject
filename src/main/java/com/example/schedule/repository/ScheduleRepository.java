@@ -6,22 +6,22 @@ import com.example.schedule.entity.Schedule;
 import java.util.List;
 import java.util.Optional;
 
-public interface Repository {
+public interface ScheduleRepository {
     ResponseDto saveSchedule(Schedule schedule);
 
-    Optional<ResponseDto> findScheduleById(Long id);
+    Optional<ScheduleInfoResponseDto> findScheduleById(Long id);
 
-    List<ScheduleListDto> findScheduleByUserId(Long userid);
+    List<ScheduleInfoResponseDto> findScheduleByUserId(Long userid);
 
-    Optional<PasswordDto> passwordGet(Long id);
+    Optional<PasswordResponseDto> passwordGet(Long id);
 
     void updateSchedule(RequestDto request);
 
     void deleteSchedule(RequestDto request);
 
-    Optional<UseridDto> findUser(String user);
+    Optional<UseridResponseDto> findUser(String user);
 
     Long saveUser(String user, String mail);
 
-    List<ScheduleListDto> findSchedulePage(int pageNumber, int pageSize);
+    List<ScheduleInfoResponseDto> findSchedulePage(int pageNumber, int pageSize);
 }

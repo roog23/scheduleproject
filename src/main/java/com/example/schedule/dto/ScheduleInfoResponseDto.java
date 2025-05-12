@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ScheduleListDto {
-    Long id;
-    Long userid;
-    String user;
+public class ScheduleInfoResponseDto {
+    private Long id;
+    private Long userid;
+    private String user;
     private String todo;
     private String createdate;
     private String updatedate;

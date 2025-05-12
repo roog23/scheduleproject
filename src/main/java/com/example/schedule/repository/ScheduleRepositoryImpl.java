@@ -2,12 +2,13 @@ package com.example.schedule.repository;
 
 import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -16,12 +17,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@org.springframework.stereotype.Repository
-public class ScheduleRepositoryImpl implements Repository{
+@Repository
+@RequiredArgsConstructor
+public class ScheduleRepositoryImpl implements ScheduleRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public ScheduleRepositoryImpl(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    @Override
+    public Optional<UseridResponseDto> findUser(String user) {
+        List<UseridResponseDto> result = jdbcTemplate.query("SELECT userid FROM user WHERE user = ?", userMapper(), user);
+        return result.stream().findAny();
+    }
+
+    @Override
+    public Long saveUser(String user, String mail) {
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+        jdbcInsert.withTableName("user").usingGeneratedKeyColumns("userid");
+        String now = LocalDate.now().toString();
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("user", user);
+        parameters.put("mail", mail);
+        parameters.put("usercreatedate", now);
+        parameters.put("userupdatedate", now);
+
+        Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
+        return key.longValue();
     }
 
     @Override
@@ -42,27 +61,27 @@ public class ScheduleRepositoryImpl implements Repository{
     }
 
     @Override
-    public Optional<ResponseDto> findScheduleById(Long id) {
-        List<ResponseDto> result = jdbcTemplate.query("SELECT id, userid, todo, todocreatedate, todoupdatedate FROM todo WHERE id = ?",scheduleMapper(), id);
+    public Optional<ScheduleInfoResponseDto> findScheduleById(Long id) {
+        List<ScheduleInfoResponseDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid WHERE id = ?",scheduleFindMapper(), id);
         return result.stream().findAny();
     }
 
     @Override
-    public List<ScheduleListDto> findScheduleByUserId(Long userid) {
-        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC",scheduleFindMapper(), userid);
+    public List<ScheduleInfoResponseDto> findScheduleByUserId(Long userid) {
+        List<ScheduleInfoResponseDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid WHERE t.userid = ? ORDER BY t.todoupdatedate DESC",scheduleFindMapper(), userid);
         return result;
     }
 
     @Override
-    public List<ScheduleListDto> findSchedulePage(int pageNumber, int pageSize) {
-        List<ScheduleListDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid LIMIT ? OFFSET ?",scheduleFindMapper(), pageSize, pageNumber * pageSize  );
+    public List<ScheduleInfoResponseDto> findSchedulePage(int pageNumber, int pageSize) {
+        List<ScheduleInfoResponseDto> result = jdbcTemplate.query("SELECT t.id, t.userid, u.user, t.todo, t.todocreatedate, t.todoupdatedate FROM todo t JOIN user u ON t.userid = u.userid LIMIT ? OFFSET ?",scheduleFindMapper(), pageSize, pageNumber * pageSize  );
         return result;
     }
 
 
     @Override
-    public Optional<PasswordDto> passwordGet(Long id) {
-        List<PasswordDto> result = jdbcTemplate.query("SELECT userid, password FROM todo WHERE id = ?",passwordMapper(), id);
+    public Optional<PasswordResponseDto> passwordGet(Long id) {
+        List<PasswordResponseDto> result = jdbcTemplate.query("SELECT userid, password FROM todo WHERE id = ?",passwordMapper(), id);
         return result.stream().findAny();
     }
 
@@ -76,43 +95,24 @@ public class ScheduleRepositoryImpl implements Repository{
         jdbcTemplate.update("DELETE FROM todo WHERE id = ?", request.getId());
     }
 
-    @Override
-    public Optional<UseridDto> findUser(String user) {
-        List<UseridDto> result = jdbcTemplate.query("SELECT userid FROM user WHERE user = ?", userMapper(), user);
-        return result.stream().findAny();
-    }
 
-    @Override
-    public Long saveUser(String user, String mail) {
-        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-        jdbcInsert.withTableName("user").usingGeneratedKeyColumns("userid");
-        String now = LocalDate.now().toString();
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("user", user);
-        parameters.put("mail", mail);
-        parameters.put("usercreatedate", now);
-        parameters.put("userupdatedate", now);
 
-        Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
-        return key.longValue();
-    }
-
-    private RowMapper<UseridDto> userMapper() {
-        return new RowMapper<UseridDto>() {
+    private RowMapper<UseridResponseDto> userMapper() {
+        return new RowMapper<UseridResponseDto>() {
             @Override
-            public UseridDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new UseridDto(
+            public UseridResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new UseridResponseDto(
                         rs.getLong("userid")
                 );
             }
         };
     }
 
-    private RowMapper<PasswordDto> passwordMapper() {
-        return new RowMapper<PasswordDto>() {
+    private RowMapper<PasswordResponseDto> passwordMapper() {
+        return new RowMapper<PasswordResponseDto>() {
             @Override
-            public PasswordDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new PasswordDto(
+            public PasswordResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new PasswordResponseDto(
                         rs.getLong("userid"),
                         rs.getString("password")
                 );
@@ -135,11 +135,11 @@ public class ScheduleRepositoryImpl implements Repository{
         };
     }
 
-    private RowMapper<ScheduleListDto> scheduleFindMapper() {
-        return new RowMapper<ScheduleListDto>() {
+    private RowMapper<ScheduleInfoResponseDto> scheduleFindMapper() {
+        return new RowMapper<ScheduleInfoResponseDto>() {
             @Override
-            public ScheduleListDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new ScheduleListDto(
+            public ScheduleInfoResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new ScheduleInfoResponseDto(
                         rs.getLong("id"),
                         rs.getLong("userid"),
                         rs.getString("user"),

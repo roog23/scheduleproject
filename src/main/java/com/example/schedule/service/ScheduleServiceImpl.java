@@ -3,26 +3,25 @@ package com.example.schedule.service;
 import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.exception.ScheduleNotFoundException;
-import com.example.schedule.exception.UserScheduleNotFoundException;
 import com.example.schedule.exception.WrongPasswordException;
-import com.example.schedule.repository.Repository;
+import com.example.schedule.repository.ScheduleRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.Optional;
 
-@org.springframework.stereotype.Service
-public class ScheduleServiceImpl implements Service{
-    private final Repository repository;
-
-    public ScheduleServiceImpl(Repository repository) {
-        this.repository = repository;
-    }
+@Service
+@RequiredArgsConstructor
+public class ScheduleServiceImpl implements ScheduleService {
+    private final ScheduleRepository repository;
 
     @Transactional
     @Override
     public ResponseDto saveSchedule(RequestDto request) {
-        Optional<UseridDto> result = repository.findUser(request.getUser());
+        Optional<UseridResponseDto> result = repository.findUser(request.getUser());
         if (result.isEmpty()) {
             Long userId = repository.saveUser(request.getUser(), request.getMail());
             request.setUserId(userId);
@@ -35,30 +34,30 @@ public class ScheduleServiceImpl implements Service{
     }
 
     @Override
-    public ResponseDto findScheduleById(Long id) {
-        return ScheduleCheck(id);
+    public ScheduleInfoResponseDto findScheduleById(Long id) {
+        return idCheck(id);
     }
 
     @Override
-    public List<ScheduleListDto> findScheduleByUserId(Long userId) {
-        List<ScheduleListDto> userIdScheduleList = repository.findScheduleByUserId(userId);
+    public List<ScheduleInfoResponseDto> findScheduleByUserId(Long userId) {
+        List<ScheduleInfoResponseDto> userIdScheduleList = repository.findScheduleByUserId(userId);
         if(userIdScheduleList.isEmpty()){
-            throw new UserScheduleNotFoundException();
+            throw new ScheduleNotFoundException();
         }
         return userIdScheduleList;
     }
 
     @Override
-    public List<ScheduleListDto> findSchedulePage(int pageNumber, int pageSize) {
+    public List<ScheduleInfoResponseDto> findSchedulePage(int pageNumber, int pageSize) {
         return repository.findSchedulePage(pageNumber, pageSize);
     }
 
     @Transactional
     @Override
-    public ResponseDto updateSchedule(RequestDto request) {
+    public ScheduleInfoResponseDto updateSchedule(RequestDto request) {
         passwordCheck(request);
         repository.updateSchedule(request);
-        return ScheduleCheck(request.getId());
+        return idCheck(request.getId());
     }
 
     @Override
@@ -67,8 +66,8 @@ public class ScheduleServiceImpl implements Service{
         repository.deleteSchedule(request);
     }
 
-    private ResponseDto ScheduleCheck(Long id) {
-        Optional<ResponseDto> result = repository.findScheduleById(id);
+    private ScheduleInfoResponseDto idCheck(Long id) {
+        Optional<ScheduleInfoResponseDto> result = repository.findScheduleById(id);
         if (result.isEmpty()) {
             throw new ScheduleNotFoundException();
         }
@@ -76,7 +75,7 @@ public class ScheduleServiceImpl implements Service{
     }
 
     private void passwordCheck(RequestDto request) {
-        Optional<PasswordDto> password = repository.passwordGet(request.getId());
+        Optional<PasswordResponseDto> password = repository.passwordGet(request.getId());
         if (password.isEmpty()) {
             throw new ScheduleNotFoundException();
         }

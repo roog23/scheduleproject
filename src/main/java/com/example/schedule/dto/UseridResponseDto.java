@@ -3,10 +3,10 @@ package com.example.schedule.dto;
 import lombok.Getter;
 
 @Getter
-public class UseridDto {
+public class UseridResponseDto {
     private final Long userid;
 
-    public UseridDto(Long user) {
+    public UseridResponseDto(Long user) {
         this.userid = user;
     }
 }

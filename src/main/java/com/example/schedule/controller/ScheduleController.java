@@ -2,8 +2,9 @@ package com.example.schedule.controller;
 
 import com.example.schedule.dto.RequestDto;
 import com.example.schedule.dto.ResponseDto;
-import com.example.schedule.dto.ScheduleListDto;
-import com.example.schedule.service.Service;
+import com.example.schedule.dto.ScheduleInfoResponseDto;
+import com.example.schedule.service.ScheduleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,31 +16,31 @@ import java.util.List;
 @RequestMapping("/schedule")
 @RequiredArgsConstructor
 public class ScheduleController {
-    private final Service service;
+    private final ScheduleService service;
 
     @PostMapping
-    public ResponseEntity<ResponseDto> createSchedule(@RequestBody RequestDto request) {
+    public ResponseEntity<ResponseDto> createSchedule(@Valid @RequestBody RequestDto request) {
         return new ResponseEntity<>(service.saveSchedule(request), HttpStatus.CREATED);
 
     }
 
     @GetMapping
-    public List<ScheduleListDto> findScheduleByUserId(@RequestParam Long userId) {
+    public List<ScheduleInfoResponseDto> findScheduleByUserId(@RequestParam Long userId) {
         return service.findScheduleByUserId(userId);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDto> findScheduleById(@PathVariable Long id) {
+    public ResponseEntity<ScheduleInfoResponseDto> findScheduleById(@PathVariable Long id) {
         return new ResponseEntity<>(service.findScheduleById(id), HttpStatus.OK);
     }
 
     @GetMapping("/page")
-    public List<ScheduleListDto> findSchedulePage(@RequestParam(defaultValue = "1") int pageNumber, @RequestParam(defaultValue = "10") int pageSize ) {
+    public List<ScheduleInfoResponseDto> findSchedulePage(@RequestParam(defaultValue = "1") int pageNumber, @RequestParam(defaultValue = "10") int pageSize ) {
         return service.findSchedulePage(pageNumber-1, pageSize);
     }
 
     @PutMapping
-    public ResponseEntity<ResponseDto> updateSchedule(@RequestBody RequestDto request) {
+    public ResponseEntity<ScheduleInfoResponseDto> updateSchedule(@Valid @RequestBody RequestDto request) {
         return new ResponseEntity<>(service.updateSchedule(request), HttpStatus.OK);
     }
 
