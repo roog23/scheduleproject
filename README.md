@@ -1,6 +1,7 @@
 # api 명세서
-![api](https://github.com/user-attachments/assets/f26b1262-8212-4e55-bf8a-46a355c34366)
+![api](https://github.com/user-attachments/assets/70e497ea-d78e-4e42-bacb-a0bcefda4c7f)
 
 
 # ERD 
-![ERD](https://github.com/user-attachments/assets/c78dc1fa-a4d9-4950-813a-8e1293db7169)
+![ERD](https://github.com/user-attachments/assets/bcff2d41-ce61-4788-a826-ee00fd339f1b)
+
