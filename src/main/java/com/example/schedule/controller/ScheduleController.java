@@ -47,7 +47,7 @@ public class ScheduleController {
     }
 
     // 일정 수정 (id, user, password, todo를 json 형태로 요청 받음)
-    @PutMapping
+    @PatchMapping
     public ResponseEntity<ScheduleInfoResponseDto> updateSchedule(@Valid @RequestBody RequestDto request) {
 
         return new ResponseEntity<>(service.updateSchedule(request), HttpStatus.OK);
